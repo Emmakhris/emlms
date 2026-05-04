@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from allauth.account.forms import SignupForm
+from allauth.account.forms import SignupForm, LoginForm
+from crispy_forms.helper import FormHelper
 
 User = get_user_model()
 
@@ -11,12 +12,24 @@ class CustomSignupForm(SignupForm):
 
     field_order = ['first_name', 'last_name', 'email', 'password1', 'password2']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+
     def save(self, request):
         user = super().save(request)
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
         user.save()
         return user
+
+
+class CustomLoginForm(LoginForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
 
 
 class ProfileUpdateForm(forms.ModelForm):
