@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" fill="none">
+  <rect width="640" height="360" fill="#E0E7FF"/>
+  <rect x="220" y="120" width="200" height="140" rx="12" fill="#818CF8"/>
+  <path d="M295 155l70 35-70 35V155z" fill="white"/>
+  <text x="320" y="310" font-family="system-ui,sans-serif" font-size="20" fill="#6366F1" text-anchor="middle">Course Preview</text>
+</svg>

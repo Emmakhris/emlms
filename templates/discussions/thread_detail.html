@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}{{ thread.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-6">
+    <a href="{% url 'discussions:thread_list' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Discussion Board</a>
+  </div>
+
+  <!-- Thread -->
+  <div class="card p-6 mb-6">
+    <div class="flex items-start gap-4">
+      <img src="{{ thread.author.get_avatar_url }}" alt="" class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start gap-2 flex-wrap">
+          <h1 class="font-bold text-gray-900 text-lg flex-1">{{ thread.title }}</h1>
+          {% if thread.is_answered %}<span class="badge-green">Answered</span>{% endif %}
+          {% if thread.is_pinned %}<span class="badge-blue">Pinned</span>{% endif %}
+        </div>
+        <p class="text-xs text-gray-400 mt-0.5">
+          {{ thread.author.get_full_name }} · {{ thread.created_at|timesince }} ago
+        </p>
+        <div class="mt-4 text-gray-700 text-sm leading-relaxed">{{ thread.body|linebreaks }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Replies -->
+  <div id="replies" class="space-y-4 mb-8">
+    {% for reply in replies %}
+      {% include 'discussions/partials/reply_item.html' with reply=reply course=course %}
+    {% empty %}
+      <p class="text-gray-400 text-sm text-center py-4">No replies yet. Be the first to respond!</p>
+    {% endfor %}
+  </div>
+
+  <!-- Reply Form -->
+  {% if not thread.is_closed %}
+  <div class="card p-6" x-data="{ body: '' }">
+    <h3 class="font-bold text-gray-900 mb-4">Add a Reply</h3>
+    <form method="post"
+          hx-post="{% url 'discussions:post_reply' course.slug thread.id %}"
+          hx-target="#replies"
+          hx-swap="beforeend"
+          hx-on::after-request="document.querySelector('[name=body]').value = ''"
+          class="space-y-4">
+      {% csrf_token %}
+      <textarea name="body" rows="4" class="input-field w-full"
+                placeholder="Write your reply…" required></textarea>
+      <button type="submit" class="btn-primary">Post Reply</button>
+    </form>
+  </div>
+  {% else %}
+    <div class="card p-4 text-center text-gray-400 text-sm">This thread is closed.</div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Certificate of Completion — {{ cert.course_title }}</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    width: 297mm;
+    height: 210mm;
+    font-family: 'Inter', Arial, sans-serif;
+    background-color: #ffffff;
+    overflow: hidden;
+  }
+
+  .page {
+    width: 297mm;
+    height: 210mm;
+    position: relative;
+    background: #ffffff;
+  }
+
+  /* Outer decorative border */
+  .outer-border {
+    position: absolute;
+    top: 8mm;
+    left: 8mm;
+    right: 8mm;
+    bottom: 8mm;
+    border: 3px solid #4f46e5;
+  }
+
+  /* Inner decorative border */
+  .inner-border {
+    position: absolute;
+    top: 12mm;
+    left: 12mm;
+    right: 12mm;
+    bottom: 12mm;
+    border: 1px solid #c7d2fe;
+  }
+
+  /* Corner accent — top left */
+  .corner-tl {
+    position: absolute;
+    top: 6mm;
+    left: 6mm;
+    width: 20mm;
+    height: 20mm;
+    border-top: 5px solid #818cf8;
+    border-left: 5px solid #818cf8;
+  }
+
+  /* Corner accent — top right */
+  .corner-tr {
+    position: absolute;
+    top: 6mm;
+    right: 6mm;
+    width: 20mm;
+    height: 20mm;
+    border-top: 5px solid #818cf8;
+    border-right: 5px solid #818cf8;
+  }
+
+  /* Corner accent — bottom left */
+  .corner-bl {
+    position: absolute;
+    bottom: 6mm;
+    left: 6mm;
+    width: 20mm;
+    height: 20mm;
+    border-bottom: 5px solid #818cf8;
+    border-left: 5px solid #818cf8;
+  }
+
+  /* Corner accent — bottom right */
+  .corner-br {
+    position: absolute;
+    bottom: 6mm;
+    right: 6mm;
+    width: 20mm;
+    height: 20mm;
+    border-bottom: 5px solid #818cf8;
+    border-right: 5px solid #818cf8;
+  }
+
+  /* Top accent bar */
+  .accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5mm;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed, #4f46e5);
+  }
+
+  /* Bottom accent bar */
+  .accent-bar-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5mm;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed, #4f46e5);
+  }
+
+  /* Main content container */
+  .content {
+    position: absolute;
+    top: 18mm;
+    left: 20mm;
+    right: 20mm;
+    bottom: 18mm;
+    text-align: center;
+  }
+
+  /* Logo / brand name */
+  .brand {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 10pt;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #6366f1;
+    margin-bottom: 3mm;
+  }
+
+  .brand-divider {
+    display: block;
+    width: 40mm;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #6366f1, transparent);
+    margin: 0 auto 4mm;
+  }
+
+  /* "Certificate of Completion" heading */
+  .cert-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1e1b4b;
+    letter-spacing: 1px;
+    margin-bottom: 4mm;
+  }
+
+  .presented-to {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 9pt;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 2mm;
+  }
+
+  /* Student name */
+  .student-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 30pt;
+    font-weight: 400;
+    color: #312e81;
+    margin-bottom: 3mm;
+    line-height: 1.1;
+  }
+
+  .name-underline {
+    display: block;
+    width: 80mm;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #818cf8, transparent);
+    margin: 0 auto 4mm;
+  }
+
+  .completion-text {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 9pt;
+    font-weight: 300;
+    color: #6b7280;
+    margin-bottom: 2mm;
+    letter-spacing: 1px;
+  }
+
+  /* Course title */
+  .course-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 15pt;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin-bottom: 2mm;
+    line-height: 1.2;
+  }
+
+  .course-meta {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 8pt;
+    color: #9ca3af;
+    margin-bottom: 5mm;
+    letter-spacing: 1px;
+  }
+
+  /* Footer row: signatures + QR */
+  .footer-row {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: table;
+    width: 100%;
+  }
+
+  .footer-left {
+    display: table-cell;
+    width: 33%;
+    text-align: center;
+    vertical-align: bottom;
+    padding-bottom: 2mm;
+  }
+
+  .footer-center {
+    display: table-cell;
+    width: 34%;
+    text-align: center;
+    vertical-align: bottom;
+    padding-bottom: 2mm;
+  }
+
+  .footer-right {
+    display: table-cell;
+    width: 33%;
+    text-align: center;
+    vertical-align: bottom;
+    padding-bottom: 2mm;
+  }
+
+  .sig-line {
+    display: block;
+    width: 40mm;
+    height: 1px;
+    background: #d1d5db;
+    margin: 0 auto 1.5mm;
+  }
+
+  .sig-name {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 8pt;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .sig-role {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 7pt;
+    color: #9ca3af;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .qr-code {
+    width: 18mm;
+    height: 18mm;
+    display: block;
+    margin: 0 auto 1mm;
+  }
+
+  .verify-label {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 6pt;
+    color: #9ca3af;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .verify-code {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 7pt;
+    font-weight: 600;
+    color: #4f46e5;
+    letter-spacing: 2px;
+  }
+
+  /* Decorative seal circle */
+  .seal {
+    display: inline-block;
+    width: 22mm;
+    height: 22mm;
+    border-radius: 50%;
+    border: 2px solid #c7d2fe;
+    background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+    text-align: center;
+    vertical-align: middle;
+    padding-top: 4mm;
+    margin-bottom: 2mm;
+  }
+
+  .seal-text-top {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 5pt;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #4f46e5;
+    display: block;
+    margin-bottom: 0.5mm;
+  }
+
+  .seal-text-main {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 8pt;
+    font-weight: 700;
+    color: #312e81;
+    display: block;
+  }
+
+  .seal-text-year {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 6pt;
+    color: #6366f1;
+    display: block;
+    margin-top: 0.5mm;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <!-- Decorative bars -->
+  <div class="accent-bar"></div>
+  <div class="accent-bar-bottom"></div>
+
+  <!-- Borders -->
+  <div class="outer-border"></div>
+  <div class="inner-border"></div>
+
+  <!-- Corner accents -->
+  <div class="corner-tl"></div>
+  <div class="corner-tr"></div>
+  <div class="corner-bl"></div>
+  <div class="corner-br"></div>
+
+  <!-- Main content -->
+  <div class="content">
+    <div class="brand">EMLMS — E-Learning Management System</div>
+    <span class="brand-divider"></span>
+
+    <div class="cert-heading">Certificate of Completion</div>
+
+    <div class="presented-to">This is to certify that</div>
+
+    <div class="student-name">{{ cert.student_name }}</div>
+    <span class="name-underline"></span>
+
+    <div class="completion-text">has successfully completed the course</div>
+
+    <div class="course-title">{{ cert.course_title }}</div>
+    <div class="course-meta">
+      {{ cert.course_duration_hours }} hours &nbsp;·&nbsp;
+      Completed {{ cert.completion_date|date:"F j, Y" }} &nbsp;·&nbsp;
+      Instructed by {{ cert.instructor_name }}
+    </div>
+
+    <!-- Footer: instructor sig | seal | QR -->
+    <div class="footer-row">
+      <div class="footer-left">
+        <span class="sig-line"></span>
+        <div class="sig-name">{{ cert.instructor_name }}</div>
+        <div class="sig-role">Course Instructor</div>
+      </div>
+
+      <div class="footer-center">
+        <div class="seal">
+          <span class="seal-text-top">Verified</span>
+          <span class="seal-text-main">EMLMS</span>
+          <span class="seal-text-year">{{ cert.completion_date|date:"Y" }}</span>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <img src="data:image/png;base64,{{ qr_code_b64 }}" alt="Verify certificate" class="qr-code" />
+        <div class="verify-label">Verification Code</div>
+        <div class="verify-code">{{ cert.verification_code }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

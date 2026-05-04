@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 text-sm focus:ring-indigo-500;
+  }
+  .btn-secondary {
+    @apply btn bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 px-5 py-2.5 text-sm focus:ring-gray-400;
+  }
+  .btn-success {
+    @apply btn bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 text-sm focus:ring-emerald-500;
+  }
+  .btn-danger {
+    @apply btn bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-sm focus:ring-red-500;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .btn-lg {
+    @apply px-8 py-3.5 text-base;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden;
+  }
+  .card-hover {
+    @apply card hover:shadow-md hover:-translate-y-0.5 transition-all duration-200;
+  }
+
+  /* Form fields */
+  .input-field {
+    @apply block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors;
+  }
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1.5;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  .badge-blue {
+    @apply badge bg-blue-100 text-blue-800;
+  }
+  .badge-green {
+    @apply badge bg-emerald-100 text-emerald-800;
+  }
+  .badge-yellow {
+    @apply badge bg-amber-100 text-amber-800;
+  }
+  .badge-red {
+    @apply badge bg-red-100 text-red-800;
+  }
+  .badge-purple {
+    @apply badge bg-violet-100 text-violet-800;
+  }
+  .badge-gray {
+    @apply badge bg-gray-100 text-gray-600;
+  }
+
+  /* Section title */
+  .section-title {
+    @apply text-2xl md:text-3xl font-bold text-gray-900 mb-2;
+  }
+  .section-subtitle {
+    @apply text-gray-500 text-base;
+  }
+
+  /* Progress bar */
+  .progress-bar {
+    @apply w-full bg-gray-200 rounded-full h-2 overflow-hidden;
+  }
+  .progress-fill {
+    @apply bg-indigo-600 h-2 rounded-full transition-all duration-500;
+  }
+
+  /* Course card */
+  .course-card {
+    @apply card-hover flex flex-col cursor-pointer;
+  }
+  .course-card-img {
+    @apply w-full object-cover bg-gray-200;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* Star rating */
+  .star-filled { @apply text-amber-400; }
+  .star-empty { @apply text-gray-300; }
+
+  /* Alert messages */
+  .alert { @apply flex items-start gap-3 p-4 rounded-xl text-sm font-medium; }
+  .alert-success { @apply alert bg-emerald-50 text-emerald-800 border border-emerald-200; }
+  .alert-error { @apply alert bg-red-50 text-red-800 border border-red-200; }
+  .alert-warning { @apply alert bg-amber-50 text-amber-800 border border-amber-200; }
+  .alert-info { @apply alert bg-blue-50 text-blue-800 border border-blue-200; }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-sm font-medium text-gray-600 hover:text-indigo-600 transition-colors px-1 py-0.5;
+  }
+  .nav-link-active {
+    @apply text-indigo-600 font-semibold;
+  }
+}

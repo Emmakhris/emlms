@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-16">
+  <h1 class="section-title">About {{ site_settings.site_name }}</h1>
+  <div class="prose max-w-none mt-6 text-gray-600 leading-relaxed">
+    {{ site_settings.about_text|linebreaks }}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment History{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-8">
+    <h1 class="section-title">Payment History</h1>
+    <p class="section-subtitle">All your completed transactions</p>
+  </div>
+
+  {% if orders %}
+    <div class="card overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+          <tr>
+            <th class="px-6 py-3 text-left">Course</th>
+            <th class="px-6 py-3 text-left">Date</th>
+            <th class="px-6 py-3 text-right">Amount</th>
+            <th class="px-6 py-3 text-right">Receipt</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          {% for order in orders %}
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+                <img src="{{ order.course.get_thumbnail_url }}" alt="" class="w-12 h-8 object-cover rounded" />
+                <div>
+                  <p class="font-medium text-gray-900 line-clamp-1">{{ order.course.title }}</p>
+                  <p class="text-xs text-gray-400">Ref: {{ order.reference }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-gray-600">{{ order.created_at|date:"M j, Y" }}</td>
+            <td class="px-6 py-4 text-right font-semibold text-gray-900">{{ order.currency }} {{ order.final_amount }}</td>
+            <td class="px-6 py-4 text-right">
+              <a href="{% url 'payments:receipt' order.id %}" class="btn-secondary btn-sm">View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-20">
+      <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+      <h3 class="text-lg font-semibold text-gray-500 mb-2">No payments yet</h3>
+      <a href="{% url 'courses:list' %}" class="btn-primary">Browse Courses</a>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

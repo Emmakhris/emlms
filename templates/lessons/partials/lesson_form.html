@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if lesson %}Edit{% else %}Add{% endif %} Lesson{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="mb-4">
+    <a href="{% url 'courses:curriculum' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Curriculum</a>
+  </div>
+  <div class="card p-8">
+    <h1 class="text-xl font-bold text-gray-900 mb-6">
+      {% if lesson %}Edit Lesson{% else %}Add Lesson to "{{ section.title }}"{% endif %}
+    </h1>
+
+    <form method="post" class="space-y-5" x-data="{ lessonType: '{{ lesson.lesson_type|default:'video' }}' }">
+      {% csrf_token %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label class="label">Lesson Title *</label>
+          <input type="text" name="title" value="{{ lesson.title|default:'' }}" class="input-field" required />
+        </div>
+
+        {% if not lesson %}
+        <div class="sm:col-span-2">
+          <label class="label">Type *</label>
+          <select name="lesson_type" class="input-field" x-model="lessonType">
+            {% for value, label in lesson_types %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        {% else %}
+          <div class="sm:col-span-2">
+            <p class="text-sm text-gray-500">Type: <strong class="text-gray-900">{{ lesson.get_lesson_type_display }}</strong></p>
+          </div>
+        {% endif %}
+
+        <div>
+          <label class="label">Duration (minutes)</label>
+          <input type="number" name="duration_minutes" value="{{ lesson.duration_minutes|default:0 }}" min="0" class="input-field" />
+        </div>
+
+        <div class="flex items-end gap-6 pb-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_free_preview" class="rounded text-indigo-600"
+                   {% if lesson.is_free_preview %}checked{% endif %} />
+            <span class="text-sm text-gray-700">Free Preview</span>
+          </label>
+          {% if lesson %}
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_published" class="rounded text-indigo-600"
+                   {% if lesson.is_published %}checked{% endif %} />
+            <span class="text-sm text-gray-700">Published</span>
+          </label>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <label class="label">Description (optional)</label>
+        <textarea name="description" rows="2" class="input-field">{{ lesson.description|default:'' }}</textarea>
+      </div>
+
+      <!-- Video URL (video type) -->
+      <div x-show="lessonType === 'video'" {% if lesson and lesson.lesson_type != 'video' %}style="display:none"{% endif %}>
+        <label class="label">Video URL</label>
+        <input type="url" name="video_url"
+               value="{% if lesson and lesson.lesson_type == 'video' %}{% with v=lesson.video %}{{ v.video_url|default:'' }}{% endwith %}{% endif %}"
+               class="input-field" placeholder="https://res.cloudinary.com/... or other video URL" />
+        <p class="text-xs text-gray-400 mt-1">Cloudinary video URL, HLS stream, or direct MP4 link.</p>
+      </div>
+
+      <!-- Text content (text type) -->
+      <div x-show="lessonType === 'text'" {% if lesson and lesson.lesson_type != 'text' %}style="display:none"{% endif %}>
+        <label class="label">Content (Markdown supported)</label>
+        <textarea name="content" rows="12" class="input-field font-mono text-sm"
+                  placeholder="Write your lesson content in Markdown...">{% if lesson and lesson.lesson_type == 'text' %}{% with t=lesson.text %}{{ t.content|default:'' }}{% endwith %}{% endif %}</textarea>
+      </div>
+
+      <!-- Resource note -->
+      <div x-show="lessonType === 'resource'" {% if lesson and lesson.lesson_type != 'resource' %}style="display:none"{% endif %}>
+        <div class="alert alert-info text-sm">
+          Save the lesson first, then upload files using the "+ File" button in the curriculum view.
+        </div>
+      </div>
+
+      <!-- Quiz note -->
+      <div x-show="lessonType === 'quiz'" {% if lesson and lesson.lesson_type != 'quiz' %}style="display:none"{% endif %}>
+        <div class="alert alert-info text-sm">
+          After saving the lesson, configure the quiz questions through the admin panel at
+          <a href="/admin-emlms-secure/quizzes/quiz/" class="text-indigo-600 underline">Admin → Quizzes</a>.
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-primary">{% if lesson %}Save Changes{% else %}Add Lesson{% endif %}</button>
+        <a href="{% url 'courses:curriculum' course.slug %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+[Unit]
+Description=EMLMS Gunicorn socket
+
+[Socket]
+ListenStream=/run/emlms/emlms.sock
+SocketUser=www-data
+
+[Install]
+WantedBy=sockets.target

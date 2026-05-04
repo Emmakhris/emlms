@@ -1,0 +1,33 @@
+<div class="flex gap-4 {% if reply.is_accepted_answer %}bg-emerald-50 border border-emerald-200 rounded-xl p-4{% endif %}">
+  <img src="{{ reply.author.get_avatar_url }}" alt="" class="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 flex-wrap mb-1">
+      <span class="font-semibold text-sm text-gray-900">{{ reply.author.get_full_name }}</span>
+      {% if reply.is_instructor_reply %}
+        <span class="badge-blue text-xs">Instructor</span>
+      {% endif %}
+      {% if reply.is_accepted_answer %}
+        <span class="badge-green text-xs">✓ Accepted Answer</span>
+      {% endif %}
+      <span class="text-xs text-gray-400">{{ reply.created_at|timesince }} ago</span>
+    </div>
+    <p class="text-sm text-gray-700 leading-relaxed">{{ reply.body|linebreaks }}</p>
+
+    <!-- Mark as accepted (instructor only) -->
+    {% if request.user.is_instructor and request.user == course.instructor and not reply.is_accepted_answer and reply.thread.thread_type == 'question' %}
+    <form method="post" action="{% url 'discussions:mark_accepted' reply.id %}" class="mt-2">
+      {% csrf_token %}
+      <button type="submit" class="text-xs text-emerald-600 hover:text-emerald-800 font-medium">✓ Mark as Accepted Answer</button>
+    </form>
+    {% endif %}
+
+    <!-- Nested replies -->
+    {% if reply.children.all %}
+    <div class="mt-3 ml-4 border-l-2 border-gray-100 pl-4 space-y-3">
+      {% for child in reply.children.all %}
+        {% include 'discussions/partials/reply_item.html' with reply=child course=course %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>

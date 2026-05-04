@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<div class="bg-gray-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+
+      <!-- Course Info -->
+      <div class="lg:col-span-2">
+        {% if course.category %}
+          <a href="{% url 'courses:list' %}?category={{ course.category.slug }}" class="badge-blue text-xs mb-3 inline-block">{{ course.category.name }}</a>
+        {% endif %}
+        <h1 class="text-3xl font-extrabold leading-tight mb-3">{{ course.title }}</h1>
+        {% if course.subtitle %}
+          <p class="text-gray-300 text-lg mb-4">{{ course.subtitle }}</p>
+        {% endif %}
+
+        <div class="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-4">
+          {% if course.total_reviews > 0 %}
+          <div class="flex items-center gap-1">
+            <span class="text-amber-400 font-bold">{{ course.average_rating }}</span>
+            <div class="flex">
+              {% for i in "12345" %}
+                {% if forloop.counter <= course.average_rating %}
+                  <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                {% else %}
+                  <svg class="w-4 h-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <span class="text-gray-400">({{ course.total_reviews }} ratings)</span>
+          </div>
+          {% endif %}
+          <span>{{ course.total_enrolled }} students</span>
+          <span>{{ course.get_level_display }}</span>
+          <span>{{ course.language }}</span>
+        </div>
+
+        <p class="text-gray-300 text-sm">
+          Created by <a href="#instructor" class="text-indigo-400 hover:text-indigo-300 font-medium">{{ course.instructor.get_full_name }}</a>
+        </p>
+      </div>
+
+      <!-- CTA Card (desktop: sticky sidebar, mobile: hidden here — shown below) -->
+      <div class="hidden lg:block">
+        {% include 'courses/partials/enroll_card.html' %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Mobile CTA -->
+<div class="lg:hidden bg-white border-b border-gray-200 px-4 py-4">
+  {% include 'courses/partials/enroll_card.html' %}
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    <!-- Main content -->
+    <div class="lg:col-span-2 space-y-8">
+
+      <!-- What you'll learn -->
+      {% if course.outcomes.all %}
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">What You'll Learn</h2>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {% for outcome in course.outcomes.all %}
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            {{ outcome.text }}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Requirements -->
+      {% if course.requirements.all %}
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Requirements</h2>
+        <ul class="space-y-2">
+          {% for req in course.requirements.all %}
+          <li class="flex items-start gap-2 text-sm text-gray-700">
+            <svg class="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3"/></svg>
+            {{ req.text }}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Curriculum -->
+      <div class="card p-6" x-data="{ openSection: 0 }">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Course Curriculum</h2>
+          <span class="text-sm text-gray-500">{{ course.total_lessons }} lessons · {{ course.total_duration_minutes }} min total</span>
+        </div>
+        {% for section in course.sections.all %}
+        <div class="border border-gray-200 rounded-xl mb-3 overflow-hidden">
+          <button @click="openSection = openSection === {{ forloop.counter }} ? null : {{ forloop.counter }}"
+                  class="w-full flex items-center justify-between px-5 py-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors">
+            <div>
+              <span class="font-semibold text-gray-900">{{ section.title }}</span>
+              <span class="text-xs text-gray-400 ml-2">{{ section.lessons.count }} lesson{{ section.lessons.count|pluralize }}</span>
+            </div>
+            <svg :class="openSection === {{ forloop.counter }} ? 'rotate-180' : ''" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div x-show="openSection === {{ forloop.counter }}" x-transition class="divide-y divide-gray-100">
+            {% for lesson in section.lessons.all %}
+            <div class="flex items-center gap-3 px-5 py-3">
+              {% if lesson.lesson_type == 'video' %}
+                <svg class="w-4 h-4 text-indigo-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+              {% elif lesson.lesson_type == 'quiz' %}
+                <svg class="w-4 h-4 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              {% else %}
+                <svg class="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              {% endif %}
+              <span class="text-sm text-gray-700 flex-1">{{ lesson.title }}</span>
+              {% if lesson.is_free_preview %}
+                <span class="text-xs text-emerald-600 font-medium">Preview</span>
+              {% elif not is_enrolled %}
+                <svg class="w-4 h-4 text-gray-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+              {% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+          <p class="text-gray-400 text-sm">Curriculum not yet available.</p>
+        {% endfor %}
+      </div>
+
+      <!-- Instructor -->
+      <div id="instructor" class="card p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Your Instructor</h2>
+        <div class="flex items-start gap-4">
+          <img src="{{ course.instructor.get_avatar_url }}" alt="{{ course.instructor.get_full_name }}"
+               class="w-16 h-16 rounded-full object-cover flex-shrink-0 ring-2 ring-indigo-100" />
+          <div>
+            <h3 class="font-bold text-gray-900">{{ course.instructor.get_full_name }}</h3>
+            {% with profile=course.instructor.instructor_profile %}
+              {% if profile.bio %}
+                <p class="text-sm text-gray-600 mt-2">{{ profile.bio }}</p>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      {% if reviews %}
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Student Reviews</h2>
+        <div class="space-y-5">
+          {% for review in reviews %}
+          <div class="flex gap-4">
+            <img src="{{ review.student.get_avatar_url }}" alt="{{ review.student.get_full_name }}"
+                 class="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="font-medium text-gray-900 text-sm">{{ review.student.get_full_name }}</span>
+                <div class="flex">
+                  {% for i in "12345" %}
+                    <svg class="w-3.5 h-3.5 {% if forloop.counter <= review.rating %}text-amber-400{% else %}text-gray-200{% endif %}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  {% endfor %}
+                </div>
+              </div>
+              <p class="text-sm text-gray-600">{{ review.comment }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Leave a review (enrolled students only) -->
+      {% if is_enrolled and user.is_authenticated %}
+      <div class="card p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">{% if user_review %}Update Your Review{% else %}Leave a Review{% endif %}</h2>
+        <form method="post" action="{% url 'courses:submit_review' course.slug %}">
+          {% csrf_token %}
+          <div class="mb-4" x-data="{ rating: {{ user_review.rating|default:0 }} }">
+            <label class="label">Rating</label>
+            <input type="hidden" name="rating" :value="rating" />
+            <div class="flex gap-1">
+              {% for i in "12345" %}
+              <button type="button" @click="rating = {{ forloop.counter }}"
+                      class="text-3xl transition-colors"
+                      :class="{{ forloop.counter }} <= rating ? 'text-amber-400' : 'text-gray-200'">★</button>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="label" for="comment">Your Review</label>
+            <textarea name="comment" id="comment" rows="4" class="input-field" placeholder="Share your experience…">{{ user_review.comment|default:'' }}</textarea>
+          </div>
+          <button type="submit" class="btn-primary">{% if user_review %}Update{% else %}Submit{% endif %} Review</button>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Sticky Sidebar (desktop) -->
+    <div class="hidden lg:block">
+      <!-- Empty — enroll card is in header grid for desktop -->
+    </div>
+
+  </div>
+</div>
+{% endblock %}

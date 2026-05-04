@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout — {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-6">
+    <a href="{% url 'courses:detail' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Back to Course</a>
+  </div>
+
+  <h1 class="section-title mb-8">Complete Your Enrollment</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+    <!-- Order Summary -->
+    <div class="lg:col-span-3 space-y-6">
+
+      <!-- Course Info -->
+      <div class="card p-6">
+        <h2 class="font-bold text-gray-900 mb-4">Order Summary</h2>
+        <div class="flex gap-4">
+          <img src="{{ course.get_thumbnail_url }}" alt="{{ course.title }}"
+               class="w-24 h-16 object-cover rounded-lg flex-shrink-0" />
+          <div>
+            <h3 class="font-semibold text-gray-900 line-clamp-2">{{ course.title }}</h3>
+            <p class="text-xs text-gray-400 mt-1">by {{ course.instructor.get_full_name }}</p>
+            <div class="flex gap-2 mt-2">
+              <span class="badge-gray text-xs">{{ course.get_level_display }}</span>
+              <span class="badge-gray text-xs">{{ course.total_lessons }} lessons</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coupon Form -->
+      <div class="card p-6" x-data="{ code: '', result: null, loading: false }">
+        <h2 class="font-bold text-gray-900 mb-4">Have a Coupon?</h2>
+        <div class="flex gap-3">
+          <input type="text" x-model="code" placeholder="Enter coupon code"
+                 class="input-field flex-1 uppercase" />
+          <button type="button" class="btn-secondary"
+                  hx-post="{% url 'coupons:apply' %}"
+                  hx-vals='js:{"code": code, "course_slug": "{{ course.slug }}"}'
+                  hx-target="#coupon-result"
+                  hx-include="[name='csrfmiddlewaretoken']"
+                  :disabled="!code.trim()">
+            Apply
+          </button>
+        </div>
+        <div id="coupon-result" class="mt-3"></div>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+      </div>
+
+    </div>
+
+    <!-- Price & Pay Button -->
+    <div class="lg:col-span-2">
+      <div class="card p-6 sticky top-24">
+        <h2 class="font-bold text-gray-900 mb-5">Price Details</h2>
+
+        <div class="space-y-3 mb-5 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-500">Original Price</span>
+            <span class="text-gray-900">{{ course.currency }} {{ course.price }}</span>
+          </div>
+          {% if course.has_discount %}
+          <div class="flex justify-between">
+            <span class="text-gray-500">Discount</span>
+            <span class="text-emerald-600">− {{ course.currency }} {{ course.price|floatformat:2 }}</span>
+          </div>
+          {% endif %}
+          <div class="border-t border-gray-100 pt-3 flex justify-between font-bold text-base">
+            <span>Total</span>
+            <span class="text-indigo-700">{{ course.currency }} {{ course.effective_price }}</span>
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'checkout:initialize' course.slug %}">
+          {% csrf_token %}
+          <input type="hidden" name="coupon_code" id="applied-coupon" value="" />
+          <button type="submit" class="btn-primary w-full btn-lg">
+            Pay {{ course.currency }} {{ course.effective_price }}
+          </button>
+        </form>
+
+        <p class="text-xs text-center text-gray-400 mt-3">
+          Secured by Paystack. 30-day money-back guarantee.
+        </p>
+
+        <div class="mt-4 space-y-2 text-xs text-gray-500">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Full lifetime access
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Certificate of completion
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Access on all devices
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

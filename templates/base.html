@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{% block meta_description %}{{ site_settings.tagline }}{% endblock %}" />
+  <title>{% block title %}{% endblock %} | {{ site_settings.site_name }}</title>
+
+  <!-- Favicon -->
+  {% if site_settings.favicon %}
+    <link rel="icon" href="{{ site_settings.favicon.url }}" type="image/x-icon" />
+  {% endif %}
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" href="/static/css/output.css" />
+
+  <!-- Plyr video player CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/plyr@3/dist/plyr.css" />
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full flex flex-col bg-gray-50" x-data>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm" id="flash-messages">
+    {% for message in messages %}
+    <div x-data="{ show: true }" x-show="show" x-transition
+         class="{% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %} shadow-lg pr-10 relative">
+      <span>{{ message }}</span>
+      <button @click="show = false" class="absolute top-3 right-3 text-current opacity-60 hover:opacity-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  <script>setTimeout(() => { const el = document.getElementById('flash-messages'); if(el) el.remove(); }, 5000);</script>
+  {% endif %}
+
+  <!-- Navbar -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- Main Content -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  {% include 'partials/footer.html' %}
+
+  <!-- HTMX -->
+  <script src="https://unpkg.com/htmx.org@2.0.4" defer></script>
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Plyr video player -->
+  <script src="https://cdn.jsdelivr.net/npm/plyr@3/dist/plyr.js"></script>
+
+  <!-- CSRF token for HTMX -->
+  <script>
+    document.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

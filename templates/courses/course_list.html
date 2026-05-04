@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Courses{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <h1 class="section-title">All Courses</h1>
+      <p class="section-subtitle">{{ page_obj.paginator.count }} course{{ page_obj.paginator.count|pluralize }} available</p>
+    </div>
+
+    <!-- Live search -->
+    <div class="w-full sm:w-72">
+      <input type="text" name="q" value="{{ current_filters.q }}"
+             placeholder="Search courses…"
+             class="input-field"
+             hx-get="{% url 'courses:list' %}"
+             hx-target="#course-grid"
+             hx-trigger="keyup changed delay:400ms"
+             hx-include="[name='category'],[name='level'],[name='pricing'],[name='sort']" />
+    </div>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-8">
+
+    <!-- Filters sidebar -->
+    <aside class="w-full lg:w-56 flex-shrink-0">
+      <form method="get" id="filter-form">
+        <input type="hidden" name="q" value="{{ current_filters.q }}" />
+
+        <div class="card p-4 space-y-6">
+          <!-- Categories -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Category</h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="category" value="" {% if not current_filters.category %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">All Categories</span>
+              </label>
+              {% for cat in categories %}
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="category" value="{{ cat.slug }}"
+                       {% if current_filters.category == cat.slug %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">{{ cat.name }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Level -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Level</h3>
+            <div class="space-y-2">
+              {% for value, label in course_levels %}
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="level" value="{{ value }}"
+                       {% if current_filters.level == value %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">{{ label }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 mb-3">Price</h3>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="pricing" value="" {% if not current_filters.pricing %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">All</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="pricing" value="free" {% if current_filters.pricing == 'free' %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">Free</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="pricing" value="paid" {% if current_filters.pricing == 'paid' %}checked{% endif %}
+                       class="text-indigo-600" onchange="this.form.submit()" />
+                <span class="text-sm text-gray-700">Paid</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Course grid -->
+    <div class="flex-1">
+      <!-- Sort bar -->
+      <div class="flex items-center justify-between mb-5">
+        <span class="text-sm text-gray-500">
+          Showing <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong>
+        </span>
+        <select name="sort" form="filter-form" onchange="document.getElementById('filter-form').submit()"
+                class="input-field w-auto text-sm py-1.5">
+          <option value="-published_at" {% if current_filters.sort == '-published_at' %}selected{% endif %}>Newest</option>
+          <option value="-total_enrolled" {% if current_filters.sort == '-total_enrolled' %}selected{% endif %}>Most Popular</option>
+          <option value="-average_rating" {% if current_filters.sort == '-average_rating' %}selected{% endif %}>Highest Rated</option>
+          <option value="price" {% if current_filters.sort == 'price' %}selected{% endif %}>Price: Low to High</option>
+          <option value="-price" {% if current_filters.sort == '-price' %}selected{% endif %}>Price: High to Low</option>
+        </select>
+      </div>
+
+      <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for course in courses %}
+          {% include 'courses/partials/course_card.html' with course=course %}
+        {% empty %}
+          <div class="col-span-3 text-center py-20">
+            <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h3 class="text-lg font-semibold text-gray-500">No courses found</h3>
+            <p class="text-gray-400 mt-1">Try adjusting your filters</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-10 flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" class="btn-secondary btn-sm">← Prev</a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="btn-primary btn-sm">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}&{{ request.GET.urlencode }}" class="btn-secondary btn-sm">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" class="btn-secondary btn-sm">Next →</a>
+        {% endif %}
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

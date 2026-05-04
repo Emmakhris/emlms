@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Upload Resource{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="mb-4">
+    <a href="{% url 'courses:curriculum' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Curriculum</a>
+  </div>
+  <div class="card p-8">
+    <h1 class="text-xl font-bold text-gray-900 mb-2">Upload Resource File</h1>
+    <p class="text-sm text-gray-500 mb-6">Lesson: <strong>{{ lesson.title }}</strong></p>
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="label">Resource Title *</label>
+        <input type="text" name="title" class="input-field" required placeholder="e.g. Cheat Sheet PDF" />
+      </div>
+      <div>
+        <label class="label">Description</label>
+        <input type="text" name="description" class="input-field" placeholder="Brief description of this file" />
+      </div>
+      <div>
+        <label class="label">File *</label>
+        <input type="file" name="file" class="input-field" required />
+        <p class="text-xs text-gray-400 mt-1">PDF, ZIP, DOCX, etc. Max 50MB.</p>
+      </div>
+      <div class="flex gap-3">
+        <button type="submit" class="btn-primary">Upload</button>
+        <a href="{% url 'courses:curriculum' course.slug %}" class="btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

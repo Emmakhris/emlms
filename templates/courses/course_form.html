@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}{% if object %}Edit Course{% else %}Create Course{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  {% if object %}
+  <div class="mb-4">
+    <a href="{% url 'courses:detail' object.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Back to Course</a>
+  </div>
+  {% endif %}
+
+  <div class="mb-6">
+    <h1 class="section-title">{% if object %}Edit Course{% else %}Create a New Course{% endif %}</h1>
+    {% if not object %}
+      <p class="section-subtitle">Fill in the details below. You can add lessons after saving.</p>
+    {% endif %}
+  </div>
+
+  <div class="card p-8">
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-error">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Basic Info -->
+      <div>
+        <h2 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Basic Information</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="label" for="{{ form.title.id_for_label }}">Course Title *</label>
+            {% render_field form.title class="input-field" placeholder="e.g. Complete Python Bootcamp" %}
+            {% if form.title.errors %}<p class="text-red-500 text-xs mt-1">{{ form.title.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="label" for="{{ form.subtitle.id_for_label }}">Subtitle</label>
+            {% render_field form.subtitle class="input-field" placeholder="A short description shown under the title" %}
+          </div>
+          <div>
+            <label class="label" for="{{ form.description.id_for_label }}">Description *</label>
+            {% render_field form.description class="input-field" rows="6" placeholder="Describe what students will learn…" %}
+            {% if form.description.errors %}<p class="text-red-500 text-xs mt-1">{{ form.description.errors|join:", " }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Media -->
+      <div>
+        <h2 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Media</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="label" for="{{ form.thumbnail.id_for_label }}">Course Thumbnail</label>
+            {% render_field form.thumbnail class="input-field" %}
+            <p class="text-xs text-gray-400 mt-1">Recommended: 1280×720px, JPG or PNG</p>
+          </div>
+          <div>
+            <label class="label" for="{{ form.preview_video_url.id_for_label }}">Preview Video URL</label>
+            {% render_field form.preview_video_url class="input-field" placeholder="https://..." %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Classification -->
+      <div>
+        <h2 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Classification</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="label" for="{{ form.category.id_for_label }}">Category</label>
+            {% render_field form.category class="input-field" %}
+          </div>
+          <div>
+            <label class="label" for="{{ form.level.id_for_label }}">Level</label>
+            {% render_field form.level class="input-field" %}
+          </div>
+          <div>
+            <label class="label" for="{{ form.language.id_for_label }}">Language</label>
+            {% render_field form.language class="input-field" %}
+          </div>
+        </div>
+        <div class="mt-4">
+          <label class="label">Tags</label>
+          <div class="flex flex-wrap gap-2 mt-1">
+            {{ form.tags }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div>
+        <h2 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Pricing</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" x-data="{ pricing: '{{ form.pricing_type.value|default:'free' }}' }">
+          <div class="sm:col-span-3">
+            <label class="label">Pricing Type</label>
+            {% render_field form.pricing_type class="input-field w-auto" x-model="pricing" %}
+          </div>
+          <div x-show="pricing === 'paid'">
+            <label class="label" for="{{ form.price.id_for_label }}">Price</label>
+            {% render_field form.price class="input-field" placeholder="0.00" %}
+            {% if form.price.errors %}<p class="text-red-500 text-xs mt-1">{{ form.price.errors|join:", " }}</p>{% endif %}
+          </div>
+          <div x-show="pricing === 'paid'">
+            <label class="label" for="{{ form.discounted_price.id_for_label }}">Discounted Price</label>
+            {% render_field form.discounted_price class="input-field" placeholder="Optional" %}
+          </div>
+          <div x-show="pricing === 'paid'">
+            <label class="label" for="{{ form.currency.id_for_label }}">Currency</label>
+            {% render_field form.currency class="input-field" %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div>
+        <h2 class="font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100">Options</h2>
+        <div class="space-y-3">
+          <label class="flex items-center gap-3 cursor-pointer">
+            {% render_field form.certificate_enabled class="rounded border-gray-300 text-indigo-600" %}
+            <span class="text-sm text-gray-700">Issue certificate on completion</span>
+          </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            {% render_field form.discussion_enabled class="rounded border-gray-300 text-indigo-600" %}
+            <span class="text-sm text-gray-700">Enable course discussion board</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-primary">
+          {% if object %}Save Changes{% else %}Create Course{% endif %}
+        </button>
+        {% if object %}
+          <a href="{% url 'courses:detail' object.slug %}" class="btn-secondary">Cancel</a>
+        {% else %}
+          <a href="{% url 'dashboard:instructor' %}" class="btn-secondary">Cancel</a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

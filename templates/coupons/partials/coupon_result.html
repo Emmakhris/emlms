@@ -1,0 +1,16 @@
+{% if error %}
+  <div class="alert alert-error text-sm">{{ error }}</div>
+{% else %}
+  <div class="alert alert-success text-sm">
+    <strong>Coupon applied!</strong>
+    <span class="block mt-1">
+      Discount: {{ coupon.discount_type }} — saves
+      {% if coupon.discount_type == 'percentage' %}{{ coupon.discount_value }}%{% else %}GHS {{ coupon.discount_value }}{% endif %}
+    </span>
+    <span class="block font-semibold">New total: GHS {{ final_amount }}</span>
+  </div>
+  <input type="hidden" id="applied-coupon" name="coupon_code" value="{{ coupon.code }}" />
+  <script>
+    document.querySelector('[name=coupon_code]') && (document.querySelector('[name=coupon_code]').value = '{{ coupon.code }}');
+  </script>
+{% endif %}

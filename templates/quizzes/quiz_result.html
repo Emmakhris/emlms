@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Result — {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="mb-6">
+    <a href="{% url 'lessons:learn' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Back to Course</a>
+  </div>
+
+  {% if attempt %}
+  <!-- Result Card -->
+  <div class="card p-8 text-center mb-6">
+    <div class="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center
+                {% if attempt.passed %}bg-emerald-100{% else %}bg-red-100{% endif %}">
+      {% if attempt.passed %}
+        <svg class="w-12 h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      {% else %}
+        <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      {% endif %}
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-900 mb-1">
+      {% if attempt.passed %}Congratulations, you passed!{% else %}Not quite — keep trying!{% endif %}
+    </h1>
+    <p class="text-gray-500 mb-6">{{ quiz.title }}</p>
+
+    <div class="text-5xl font-extrabold {% if attempt.passed %}text-emerald-600{% else %}text-red-500{% endif %} mb-2">
+      {{ attempt.percentage|floatformat:0 }}%
+    </div>
+    <p class="text-gray-400 text-sm">{{ attempt.score }} / {{ attempt.max_score }} points · Pass mark: {{ quiz.pass_percentage }}%</p>
+  </div>
+
+  <!-- Attempt History -->
+  {% if all_attempts.count > 1 %}
+  <div class="card p-6 mb-6">
+    <h2 class="font-bold text-gray-900 mb-4">All Attempts</h2>
+    <div class="space-y-2">
+      {% for a in all_attempts %}
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-gray-500">Attempt {{ a.attempt_number }}</span>
+        <span class="font-medium {% if a.passed %}text-emerald-600{% else %}text-red-500{% endif %}">
+          {{ a.percentage|floatformat:0 }}% — {% if a.passed %}Passed{% else %}Failed{% endif %}
+        </span>
+        <span class="text-gray-400">{{ a.submitted_at|date:"M j, Y" }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="flex gap-3">
+    {% if not attempt.passed and quiz.max_attempts == 0 or not attempt.passed and all_attempts.count < quiz.max_attempts %}
+      <a href="{% url 'quizzes:take' course.slug quiz.id %}" class="btn-primary">Try Again</a>
+    {% endif %}
+    <a href="{% url 'lessons:learn' course.slug %}" class="btn-secondary">Back to Course</a>
+  </div>
+
+  {% else %}
+    <div class="card p-8 text-center">
+      <p class="text-gray-400">No quiz attempts yet.</p>
+      <a href="{% url 'quizzes:take' course.slug quiz.id %}" class="btn-primary mt-4">Take the Quiz</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

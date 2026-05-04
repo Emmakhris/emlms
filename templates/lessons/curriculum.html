@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Curriculum — {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <div>
+      <a href="{% url 'courses:detail' course.slug %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Back to Course</a>
+      <h1 class="section-title mt-1">Course Curriculum</h1>
+      <p class="section-subtitle">{{ course.title }}</p>
+    </div>
+    <div class="flex gap-2">
+      <a href="{% url 'courses:edit' course.slug %}" class="btn-secondary btn-sm">Edit Details</a>
+      <form method="post" action="{% url 'courses:toggle_publish' course.slug %}">
+        {% csrf_token %}
+        {% if course.status == 'published' %}
+          <button type="submit" class="btn-secondary btn-sm">Unpublish</button>
+        {% else %}
+          <button type="submit" class="btn-primary btn-sm">Publish Course</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Course Stats -->
+  <div class="grid grid-cols-3 gap-4 mb-8">
+    <div class="card p-4 text-center">
+      <p class="text-2xl font-bold text-indigo-600">{{ course.sections.count }}</p>
+      <p class="text-xs text-gray-500 mt-1">Sections</p>
+    </div>
+    <div class="card p-4 text-center">
+      <p class="text-2xl font-bold text-indigo-600">{{ course.total_lessons }}</p>
+      <p class="text-xs text-gray-500 mt-1">Lessons</p>
+    </div>
+    <div class="card p-4 text-center">
+      <p class="text-2xl font-bold text-indigo-600">{{ course.total_duration_minutes }}</p>
+      <p class="text-xs text-gray-500 mt-1">Total Minutes</p>
+    </div>
+  </div>
+
+  <!-- Sections -->
+  <div class="space-y-6" id="sections-list">
+    {% for section in sections %}
+    <div class="card overflow-hidden" id="section-{{ section.id }}">
+
+      <!-- Section Header -->
+      <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <span class="cursor-grab text-gray-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+          </span>
+          <div>
+            <h3 class="font-bold text-gray-900">{{ section.title }}</h3>
+            <span class="text-xs text-gray-400">{{ section.lessons.count }} lesson{{ section.lessons.count|pluralize }}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <a href="{% url 'courses:section_edit' course.slug section.id %}" class="btn-secondary btn-sm">Edit</a>
+          <form method="post" action="{% url 'courses:section_delete' course.slug section.id %}"
+                onsubmit="return confirm('Delete this section and all its lessons?')">
+            {% csrf_token %}
+            <button type="submit" class="btn-sm text-red-600 hover:bg-red-50 border border-red-200 rounded-lg px-3 py-1.5 text-sm transition-colors">Delete</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Lessons -->
+      <div class="divide-y divide-gray-100" id="lessons-{{ section.id }}">
+        {% for lesson in section.lessons.all %}
+        <div class="flex items-center gap-4 px-6 py-3 hover:bg-gray-50" id="lesson-{{ lesson.id }}">
+          <span class="cursor-grab text-gray-300">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
+          </span>
+
+          <!-- Type icon -->
+          <div class="flex-shrink-0">
+            {% if lesson.lesson_type == 'video' %}
+              <div class="w-7 h-7 rounded bg-indigo-100 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+              </div>
+            {% elif lesson.lesson_type == 'text' %}
+              <div class="w-7 h-7 rounded bg-blue-100 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              </div>
+            {% elif lesson.lesson_type == 'quiz' %}
+              <div class="w-7 h-7 rounded bg-purple-100 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              </div>
+            {% else %}
+              <div class="w-7 h-7 rounded bg-amber-100 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-gray-900 text-sm truncate">{{ lesson.title }}</p>
+            <div class="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+              <span>{{ lesson.get_lesson_type_display }}</span>
+              {% if lesson.duration_minutes %}<span>· {{ lesson.duration_minutes }} min</span>{% endif %}
+              {% if lesson.is_free_preview %}<span class="text-emerald-600">· Free Preview</span>{% endif %}
+              {% if not lesson.is_published %}<span class="text-amber-600">· Draft</span>{% endif %}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <a href="{% url 'courses:lesson_edit' course.slug lesson.id %}" class="btn-secondary btn-sm">Edit</a>
+            {% if lesson.lesson_type == 'resource' %}
+              <a href="{% url 'courses:resource_upload' course.slug lesson.id %}" class="btn-secondary btn-sm">+ File</a>
+            {% endif %}
+            <form method="post" action="{% url 'courses:lesson_delete' course.slug lesson.id %}"
+                  onsubmit="return confirm('Delete this lesson?')">
+              {% csrf_token %}
+              <button type="submit" class="text-red-400 hover:text-red-600 p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+          <p class="px-6 py-4 text-sm text-gray-400 italic">No lessons yet — add one below.</p>
+        {% endfor %}
+      </div>
+
+      <!-- Add Lesson -->
+      <div class="px-6 py-3 bg-gray-50 border-t border-gray-100" x-data="{ open: false }">
+        <button @click="open = !open" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Add Lesson
+        </button>
+
+        <div x-show="open" x-transition class="mt-4">
+          <form method="post" action="{% url 'courses:lesson_add' course.slug section.id %}"
+                class="space-y-3 bg-white rounded-xl border border-gray-200 p-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="label text-xs">Lesson Title *</label>
+                <input type="text" name="title" class="input-field" required placeholder="e.g. Introduction to Python" />
+              </div>
+              <div>
+                <label class="label text-xs">Type *</label>
+                <select name="lesson_type" class="input-field" x-model="lessonType"
+                        x-data="{ lessonType: 'video' }">
+                  {% for value, label in lesson_types %}
+                    <option value="{{ value }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <!-- Video URL field (shown for video type) -->
+            <div x-data="{ lessonType: 'video' }" class="hidden" id="video-url-field-{{ section.id }}">
+              <label class="label text-xs">Video URL</label>
+              <input type="url" name="video_url" class="input-field" placeholder="https://... (Cloudinary, YouTube, etc.)" />
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="label text-xs">Duration (minutes)</label>
+                <input type="number" name="duration_minutes" class="input-field" min="0" value="0" />
+              </div>
+              <div class="flex items-end pb-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" name="is_free_preview" class="rounded text-indigo-600" />
+                  <span class="text-sm text-gray-700">Free Preview</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <button type="submit" class="btn-primary btn-sm">Add Lesson</button>
+              <button type="button" @click="open = false" class="btn-secondary btn-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+      <div class="text-center py-10 text-gray-400">
+        <p class="text-sm">No sections yet. Add your first section below.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Add Section Form -->
+  <div class="mt-8 card p-6" x-data="{ open: {% if not sections %}true{% else %}false{% endif %} }">
+    <button @click="open = !open" class="flex items-center gap-2 font-semibold text-gray-900 w-full text-left">
+      <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      Add New Section
+    </button>
+    <div x-show="open" x-transition class="mt-4">
+      <form method="post" action="{% url 'courses:section_add' course.slug %}" class="flex gap-3 items-end">
+        {% csrf_token %}
+        <div class="flex-1">
+          <label class="label text-xs">Section Title</label>
+          <input type="text" name="title" class="input-field" required placeholder="e.g. Getting Started" />
+        </div>
+        <button type="submit" class="btn-primary">Add Section</button>
+      </form>
+    </div>
+  </div>
+
+</div>
+
+<!-- Variables for lesson types (used in inline JS) -->
+{% for value, label in lesson_types %}{% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Show/hide Video URL field based on lesson type selection
+document.querySelectorAll('[name="lesson_type"]').forEach(function(sel) {
+  var form = sel.closest('form');
+  var sectionId = form.closest('.card')?.id?.replace('section-', '');
+  var videoField = document.getElementById('video-url-field-' + sectionId);
+  function toggle() {
+    if (videoField) videoField.classList.toggle('hidden', sel.value !== 'video');
+  }
+  sel.addEventListener('change', toggle);
+  toggle();
+});
+</script>
+{% endblock %}

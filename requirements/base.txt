@@ -1,0 +1,66 @@
+# Core Framework
+Django==5.1.4
+
+# Database
+psycopg2-binary==2.9.10
+dj-database-url==2.3.0
+
+# Authentication
+django-allauth==65.3.0
+django-axes==7.0.1
+
+# Environment & Security
+python-decouple==3.8
+django-csp==3.8
+django-permissions-policy==4.21.0
+
+# Storage
+cloudinary==1.41.0
+django-cloudinary-storage==0.3.0
+
+# Media Processing
+Pillow==11.1.0
+
+# PDF Generation (Certificates)
+weasyprint==62.3
+
+# Rich Text / Markdown
+markdown==3.7
+bleach==6.1.0
+
+# Forms
+django-crispy-forms==2.3
+crispy-tailwind==1.0.3
+django-widget-tweaks==1.5.0
+
+# Background Tasks
+celery==5.4.0
+redis==5.2.1
+django-celery-beat==2.7.0
+django-celery-results==2.5.1
+flower==2.0.1
+
+# Caching
+django-redis==5.4.0
+
+# Email
+django-anymail==11.1
+
+# Rate Limiting
+django-ratelimit==4.1.0
+
+# Payments (HTTP client for Paystack API)
+requests==2.32.3
+
+# Utilities
+python-slugify==8.0.4
+shortuuid==1.0.13
+humanize==4.11.0
+django-extensions==3.2.3
+qrcode==8.0
+
+# HTMX
+django-htmx==1.21.0
+
+# API (internal HTMX JSON + future mobile)
+djangorestframework==3.15.2

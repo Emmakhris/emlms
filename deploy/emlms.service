@@ -1,0 +1,32 @@
+[Unit]
+Description=EMLMS Gunicorn daemon
+Requires=emlms.socket
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+RuntimeDirectory=emlms
+WorkingDirectory=/var/www/emlms
+Environment="DJANGO_SETTINGS_MODULE=emlms.settings.production"
+EnvironmentFile=/var/www/emlms/.env
+ExecStart=/var/www/emlms/venv/bin/gunicorn \
+          --workers 4 \
+          --worker-class sync \
+          --worker-connections 1000 \
+          --timeout 300 \
+          --bind unix:/run/emlms/emlms.sock \
+          --log-level info \
+          --access-logfile /var/log/emlms/gunicorn_access.log \
+          --error-logfile /var/log/emlms/gunicorn_error.log \
+          emlms.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

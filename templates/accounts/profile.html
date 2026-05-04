@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    <!-- Profile Card -->
+    <div class="md:col-span-1">
+      <div class="card p-6 text-center">
+        <img src="{{ user.get_avatar_url }}" alt="{{ user.get_full_name }}"
+             class="w-24 h-24 rounded-full object-cover mx-auto mb-4 ring-4 ring-indigo-100" />
+        <h2 class="text-xl font-bold text-gray-900">{{ user.get_full_name }}</h2>
+        <p class="text-gray-500 text-sm mt-1">{{ user.email }}</p>
+        {% if user.is_instructor %}
+          <span class="badge-blue mt-2 inline-block">Instructor</span>
+        {% else %}
+          <span class="badge-gray mt-2 inline-block">Student</span>
+        {% endif %}
+
+        {% with profile=user.student_profile %}
+        {% if profile.bio %}
+          <p class="text-sm text-gray-600 mt-4 text-left">{{ profile.bio }}</p>
+        {% endif %}
+        {% if profile.country %}
+          <p class="text-xs text-gray-400 mt-2">📍 {{ profile.country }}</p>
+        {% endif %}
+        {% endwith %}
+
+        <a href="{% url 'accounts:profile_edit' %}" class="btn-secondary btn-sm w-full mt-5">Edit Profile</a>
+      </div>
+    </div>
+
+    <!-- Account Details -->
+    <div class="md:col-span-2 space-y-6">
+
+      <div class="card p-6">
+        <h3 class="font-bold text-gray-900 mb-4">Account Information</h3>
+        <dl class="space-y-3">
+          <div class="flex justify-between text-sm">
+            <dt class="text-gray-500">Full Name</dt>
+            <dd class="font-medium text-gray-900">{{ user.get_full_name }}</dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-gray-500">Email</dt>
+            <dd class="font-medium text-gray-900">{{ user.email }}</dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-gray-500">Member Since</dt>
+            <dd class="font-medium text-gray-900">{{ user.date_joined|date:"F Y" }}</dd>
+          </div>
+          <div class="flex justify-between text-sm">
+            <dt class="text-gray-500">Email Verified</dt>
+            <dd>
+              {% if user.is_email_verified %}
+                <span class="badge-green">Verified</span>
+              {% else %}
+                <span class="badge-red">Not Verified</span>
+              {% endif %}
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="font-bold text-gray-900 mb-4">Security</h3>
+        <div class="space-y-3">
+          <a href="{% url 'account_change_password' %}" class="flex items-center justify-between text-sm text-gray-700 hover:text-indigo-600">
+            <span>Change Password</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="card p-6">
+        <h3 class="font-bold text-gray-900 mb-4">Quick Navigation</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <a href="{% url 'dashboard:student' %}" class="btn-secondary btn-sm text-center">Dashboard</a>
+          <a href="{% url 'enrollments:my_courses' %}" class="btn-secondary btn-sm text-center">My Courses</a>
+          <a href="{% url 'certificates:list' %}" class="btn-secondary btn-sm text-center">Certificates</a>
+          <a href="{% url 'payments:history' %}" class="btn-secondary btn-sm text-center">Payments</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

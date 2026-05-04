@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+{% block meta_description %}{{ site_settings.hero_subtitle|default:site_settings.tagline }}{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-violet-800 text-white overflow-hidden">
+  <div class="absolute inset-0 opacity-10">
+    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="white" stroke-width="0.5"/></pattern></defs>
+      <rect width="100" height="100" fill="url(#grid)"/>
+    </svg>
+  </div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+    <div class="max-w-3xl">
+      <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+        {{ site_settings.hero_title|default:"Learn Without Limits" }}
+      </h1>
+      {% if site_settings.hero_subtitle %}
+      <p class="mt-6 text-lg md:text-xl text-indigo-100 leading-relaxed max-w-2xl">
+        {{ site_settings.hero_subtitle }}
+      </p>
+      {% endif %}
+      <div class="mt-10 flex flex-wrap gap-4">
+        <a href="{% url 'courses:list' %}" class="btn bg-white text-indigo-700 hover:bg-indigo-50 px-8 py-3.5 text-base font-bold shadow-lg">
+          Explore Courses
+        </a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'account_signup' %}" class="btn border-2 border-white text-white hover:bg-white hover:text-indigo-700 px-8 py-3.5 text-base font-bold transition-colors">
+          Start Learning Free
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Stats -->
+      <div class="mt-16 flex flex-wrap gap-8">
+        {% if site_settings.total_students_display %}
+        <div>
+          <p class="text-3xl font-extrabold">{{ site_settings.total_students_display|floatformat:"0" }}+</p>
+          <p class="text-indigo-200 text-sm mt-1">Students enrolled</p>
+        </div>
+        {% endif %}
+        {% if site_settings.total_courses_display %}
+        <div>
+          <p class="text-3xl font-extrabold">{{ site_settings.total_courses_display }}+</p>
+          <p class="text-indigo-200 text-sm mt-1">Expert courses</p>
+        </div>
+        {% endif %}
+        <div>
+          <p class="text-3xl font-extrabold">100%</p>
+          <p class="text-indigo-200 text-sm mt-1">Online & self-paced</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+{% if categories %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="text-center mb-10">
+    <h2 class="section-title">Explore Categories</h2>
+    <p class="section-subtitle">Find the subject that interests you most</p>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+    {% for category in categories %}
+    <a href="{% url 'courses:list' %}?category={{ category.slug }}"
+       class="card p-4 text-center hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group">
+      <div class="text-3xl mb-2">{{ category.icon|default:"📚" }}</div>
+      <p class="text-xs font-semibold text-gray-700 group-hover:text-indigo-600 transition-colors leading-tight">{{ category.name }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Featured Courses -->
+{% if featured_courses %}
+<section class="bg-indigo-50 py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-10">
+      <div>
+        <h2 class="section-title">Featured Courses</h2>
+        <p class="section-subtitle">Hand-picked by our instructors</p>
+      </div>
+      <a href="{% url 'courses:list' %}" class="btn-secondary hidden sm:flex">View All</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for course in featured_courses %}
+        {% include 'courses/partials/course_card.html' with course=course %}
+      {% endfor %}
+    </div>
+    <div class="mt-8 text-center sm:hidden">
+      <a href="{% url 'courses:list' %}" class="btn-secondary">View All Courses</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Latest Courses -->
+{% if latest_courses %}
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <div class="flex items-center justify-between mb-10">
+    <div>
+      <h2 class="section-title">Latest Courses</h2>
+      <p class="section-subtitle">Fresh content, added regularly</p>
+    </div>
+    <a href="{% url 'courses:list' %}?sort=-published_at" class="btn-secondary hidden sm:flex">See More</a>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    {% for course in latest_courses %}
+      {% include 'courses/partials/course_card.html' with course=course %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+{% if not user.is_authenticated %}
+<section class="bg-gradient-to-r from-violet-600 to-indigo-600 text-white">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+    <h2 class="text-3xl md:text-4xl font-extrabold">Ready to start learning?</h2>
+    <p class="mt-4 text-lg text-indigo-100">Join thousands of students already learning on {{ site_settings.site_name }}.</p>
+    <div class="mt-8 flex flex-wrap justify-center gap-4">
+      <a href="{% url 'account_signup' %}" class="btn bg-white text-indigo-700 hover:bg-indigo-50 px-8 py-3.5 text-base font-bold shadow-lg">
+        Create Free Account
+      </a>
+      <a href="{% url 'courses:list' %}" class="btn border-2 border-white text-white hover:bg-white hover:text-indigo-700 px-8 py-3.5 text-base font-bold">
+        Browse Courses
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

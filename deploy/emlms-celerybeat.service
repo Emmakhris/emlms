@@ -1,0 +1,22 @@
+[Unit]
+Description=EMLMS Celery Beat scheduler
+After=network.target redis.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/emlms
+Environment="DJANGO_SETTINGS_MODULE=emlms.settings.production"
+EnvironmentFile=/var/www/emlms/.env
+ExecStart=/var/www/emlms/venv/bin/celery \
+          -A emlms beat \
+          --loglevel=info \
+          --scheduler django_celery_beat.schedulers:DatabaseScheduler \
+          --logfile=/var/log/emlms/celerybeat.log \
+          --pidfile=/var/run/emlms/celerybeat.pid
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

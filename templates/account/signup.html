@@ -1,0 +1,28 @@
+{% extends 'account/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block inner_content %}
+<div class="card p-8">
+  <div class="text-center mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Start learning today</h1>
+    <p class="text-gray-500 mt-1">Create your free account in seconds</p>
+  </div>
+
+  <form method="post" action="{% url 'account_signup' %}" class="space-y-5">
+    {% csrf_token %}
+    {% crispy form %}
+    <button type="submit" class="btn-primary w-full btn-lg mt-2">Create Account</button>
+  </form>
+
+  <p class="mt-4 text-xs text-center text-gray-400">
+    By signing up, you agree to our <a href="#" class="underline">Terms</a> and <a href="#" class="underline">Privacy Policy</a>.
+  </p>
+
+  <div class="mt-5 text-center text-sm">
+    <span class="text-gray-500">Already have an account?</span>
+    <a href="{% url 'account_login' %}" class="ml-1 text-indigo-600 font-semibold hover:underline">Log in</a>
+  </div>
+</div>
+{% endblock %}

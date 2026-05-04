@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Receipt — {{ order.reference }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-10">
+  <div class="mb-6">
+    <a href="{% url 'payments:history' %}" class="text-sm text-indigo-600 hover:text-indigo-800">← Payment History</a>
+  </div>
+
+  <div class="card p-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Receipt</h1>
+        <p class="text-sm text-gray-400 font-mono mt-1">{{ order.reference }}</p>
+      </div>
+      <span class="badge-green text-sm">Paid</span>
+    </div>
+
+    <div class="border border-gray-100 rounded-xl overflow-hidden mb-6">
+      <div class="flex items-center gap-4 p-4 bg-gray-50">
+        <img src="{{ order.course.get_thumbnail_url }}" alt="" class="w-16 h-12 object-cover rounded-lg" />
+        <div>
+          <p class="font-semibold text-gray-900">{{ order.course.title }}</p>
+          <p class="text-xs text-gray-400">{{ order.course.instructor.get_full_name }}</p>
+        </div>
+      </div>
+      <div class="divide-y divide-gray-100 text-sm">
+        <div class="flex justify-between px-4 py-3">
+          <span class="text-gray-500">Original Price</span>
+          <span class="text-gray-900">{{ order.currency }} {{ order.original_price }}</span>
+        </div>
+        {% if order.discount_amount %}
+        <div class="flex justify-between px-4 py-3">
+          <span class="text-gray-500">Discount</span>
+          <span class="text-emerald-600">− {{ order.currency }} {{ order.discount_amount }}</span>
+        </div>
+        {% endif %}
+        <div class="flex justify-between px-4 py-3 font-semibold bg-indigo-50">
+          <span class="text-gray-900">Total Paid</span>
+          <span class="text-indigo-600 text-lg">{{ order.currency }} {{ order.final_amount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-sm mb-6">
+      <div>
+        <p class="text-gray-500 mb-1">Payment Date</p>
+        <p class="font-medium text-gray-900">{{ order.created_at|date:"F j, Y, g:i A" }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500 mb-1">Payment Method</p>
+        <p class="font-medium text-gray-900 capitalize">{{ order.payment_method|default:"Card" }}</p>
+      </div>
+      <div>
+        <p class="text-gray-500 mb-1">Billed To</p>
+        <p class="font-medium text-gray-900">{{ order.student.get_full_name }}</p>
+        <p class="text-gray-400 text-xs">{{ order.student.email }}</p>
+      </div>
+    </div>
+
+    <div class="flex gap-3">
+      <a href="{% url 'lessons:learn' order.course.slug %}" class="btn-primary">Go to Course</a>
+      <button onclick="window.print()" class="btn-secondary">
+        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        Print
+      </button>
+    </div>
+  </div>
+</div>
+{% endblock %}
